@@ -18,9 +18,13 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -35,10 +39,9 @@ public class ConsumerListenService {
     @Value(("${opensearch.port}"))
     private Integer openSearchPort;
 
-    private DateUtils dateUtils;
+    private final DateUtils dateUtils = new DateUtils();
 
     private RestHighLevelClient esClient;
-    private final String indexPrefix = "test-";
 
     @PostConstruct
     void init(){
@@ -58,6 +61,7 @@ public class ConsumerListenService {
 
     public void sendKafkaToEs(KafkaConsumerData kafkaConsumerData){
         try {
+            String indexPrefix = "test-";
             String dateIndex = indexPrefix + dateUtils.getDateNowString();
             IndexRequest request = new IndexRequest(dateIndex);
             request.source(gson.toJson(kafkaConsumerData), XContentType.JSON);
@@ -70,15 +74,27 @@ public class ConsumerListenService {
     }
 
 
-    @KafkaListener(topics="telegraflogs", groupId="nam")
-    public void Listen(ConsumerRecord<String,String> record){
+    @KafkaListener(id = "batch-listener2", topics="telegraflogs", groupId="nam")
+    public void consumer1(List<Object>records){
+        try {
+            for(Object record : records) {
+                KafkaConsumerData kafkaConsumerData = gson.fromJson(record.toString(), KafkaConsumerData.class);
+                log.debug("Kafka consumed data:{}", gson.toJson(kafkaConsumerData));
 
-        KafkaConsumerData kafkaConsumerData = gson.fromJson(record.value(), KafkaConsumerData.class);
-        log.debug("Kafka consumed data:{}", gson.toJson(kafkaConsumerData));
+                sendKafkaToEs(kafkaConsumerData);
+            }
+        }
+        catch (Exception e){
+            log.debug("--> {}" ,records.toString());
+            log.error(e.getMessage());
+        }
+    }
 
-        sendKafkaToEs(kafkaConsumerData);
+    @KafkaListener(id = "batch-listener1",topics="telegraflogs", groupId="nam")
+    public void consumer2(ConsumerRecord<String,List<String>> record){
 
     }
+
 
 
 }

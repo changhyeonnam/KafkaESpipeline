@@ -24,7 +24,7 @@ public class KafkaConfig {
 
 
     @Bean
-    public Map<String, Object> consumerConfgis(){
+    public Map<String, Object> consumerConfigs(){
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, group_id);
@@ -33,13 +33,14 @@ public class KafkaConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,"1");
 
         return props;
     }
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory(){
-        return new DefaultKafkaConsumerFactory<>(consumerConfgis());
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 
     @Bean
@@ -48,7 +49,7 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(1);
         factory.setBatchListener(true);
-        factory.getContainerProperties().setPollTimeout(10000);
+        factory.getContainerProperties().setPollTimeout(500);
         return factory;
     }
 }
