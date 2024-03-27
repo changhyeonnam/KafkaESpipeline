@@ -2,6 +2,7 @@ package com.skt.KafkaESpipeline.service;
 
 import com.google.gson.Gson;
 import com.skt.KafkaESpipeline.dto.KafkaConsumerData;
+import com.skt.KafkaESpipeline.util.DateUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,10 @@ public class ConsumerListenService {
     @Value(("${opensearch.port}"))
     private Integer openSearchPort;
 
-    private RestHighLevelClient esClient;
+    private DateUtils dateUtils;
 
+    private RestHighLevelClient esClient;
+    private final String indexPrefix = "test-";
 
     @PostConstruct
     void init(){
@@ -55,7 +58,8 @@ public class ConsumerListenService {
 
     public void sendKafkaToEs(KafkaConsumerData kafkaConsumerData){
         try {
-            IndexRequest request = new IndexRequest("text-2024-03-27");
+            String dateIndex = indexPrefix + dateUtils.getDateNowString();
+            IndexRequest request = new IndexRequest(dateIndex);
             request.source(gson.toJson(kafkaConsumerData), XContentType.JSON);
             IndexResponse response = esClient.index(request, RequestOptions.DEFAULT);
             log.debug("Indexed document Id: {}", response.getId());
