@@ -50,7 +50,7 @@ public class ElasticSearchService {
 
 
     public String getEsData(){
-        String indexPrefix = "test-";
+        String indexPrefix = "text-";
         String dateIndex = indexPrefix + dateUtils.getDateNowString();
         SearchRequest searchRequest = new SearchRequest(dateIndex);
 
@@ -64,8 +64,6 @@ public class ElasticSearchService {
             String result = "";
             for(SearchHit hit : hits.getHits()){
                 result += hit.getSourceAsString()+'\n';
-//                log.debug(hit.getSourceAsString());
-                break;
             }
 
             return result;

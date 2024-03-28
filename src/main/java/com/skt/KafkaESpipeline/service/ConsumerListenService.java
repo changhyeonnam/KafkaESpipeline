@@ -90,11 +90,5 @@ public class ConsumerListenService {
         }
     }
 
-    @KafkaListener(id = "batch-listener1",topics="telegraflogs", groupId="nam")
-    public void consumer2(ConsumerRecord<String,List<String>> record){
-
-    }
-
-
 
 }
