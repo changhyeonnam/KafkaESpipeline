@@ -19,6 +19,9 @@ Kafka와 ElasticSearch(OpenSearch)을 이용해서 간단한 pipeline 및 웹 �
 **현재 개발한 기능들**
 
 *[x] Springboot에 GET request for index.html 띄우기
+
 *[x] poll 메서드 기반 Kafka Consumer 구현
-*[x] Kafka Listener로 데이터 받아오고, OpenSearch에 데이터 저장 및 Get 요청으로 데이터 불러와서 웹으로 띄우기.
+
+*[x] Kafka Listener로 데이터 받아오고, OpenSearch에 데이터 저장 및 Get 요청으로 데이터 불러와서 웹으로 띄우기
+
 * [ ] OpenSearch에서 가져온 데이터 table로 출력하기.
