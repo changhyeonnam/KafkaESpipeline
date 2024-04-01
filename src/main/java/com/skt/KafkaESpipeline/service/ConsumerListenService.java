@@ -3,28 +3,21 @@ package com.skt.KafkaESpipeline.service;
 import com.google.gson.Gson;
 import com.skt.KafkaESpipeline.dto.KafkaConsumerData;
 import com.skt.KafkaESpipeline.util.DateUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHost;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.opensearch.OpenSearchException;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.index.IndexResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,40 +26,30 @@ public class ConsumerListenService {
     @Autowired
     private Gson gson;
 
-    @Value("${opensearch.address}")
-    private String openSearchAddress;
 
-    @Value(("${opensearch.port}"))
-    private Integer openSearchPort;
 
     private final DateUtils dateUtils = new DateUtils();
 
-    private RestHighLevelClient esClient;
+    @Autowired
+    private RestHighLevelClient highLevelClient;
+//    private RestClient lowLevelClient = highLevelClient.getLowLevelClient();
 
-    @PostConstruct
-    void init(){
-        esClient = new RestHighLevelClient(
-                RestClient.builder(new HttpHost(openSearchAddress, openSearchPort, "http")));
-    }
-
-    @PreDestroy
-    void destroy(){
-        try{
-            esClient.close();
-        }
-        catch (Exception e){
-            log.error("Error occurred during resource cleanup: {}", e.getMessage());
-        }
-    }
 
     public void sendKafkaToEs(KafkaConsumerData kafkaConsumerData){
         try {
-            String indexPrefix = "test-";
-            String dateIndex = indexPrefix + dateUtils.getDateNowString();
-            IndexRequest request = new IndexRequest(dateIndex);
-            request.source(gson.toJson(kafkaConsumerData), XContentType.JSON);
-            IndexResponse response = esClient.index(request, RequestOptions.DEFAULT);
+
+            String indexPrefix = "txt-";
+            String indexName = indexPrefix + dateUtils.getDateNowString();
+            String message = gson.toJson(kafkaConsumerData);
+
+            IndexRequest request = new IndexRequest(indexName).id(String.valueOf(UUID.randomUUID()))
+                    .source(message, XContentType.JSON);
+            IndexResponse response = highLevelClient.index(request, RequestOptions.DEFAULT);
             log.debug("Indexed document Id: {}", response.getId());
+        }
+        catch (OpenSearchException e){
+            System.out.println("request = "+kafkaConsumerData.toString());
+            log.error("ElasticsearchException:{}", e.getMessage());
         }
         catch(IOException e){
             log.error("Error occurred while indexing data to ElasticSearch: {}", e.getMessage());
@@ -74,7 +57,7 @@ public class ConsumerListenService {
     }
 
 
-    @KafkaListener(id = "batch-listener2", topics="telegraflogs", groupId="nam")
+    @KafkaListener(id = "batch-listener", topics="telegraflogs", groupId="nam")
     public void consumer1(List<Object>records){
         try {
             for(Object record : records) {

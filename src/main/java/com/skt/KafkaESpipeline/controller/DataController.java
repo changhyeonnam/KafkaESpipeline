@@ -1,7 +1,7 @@
 package com.skt.KafkaESpipeline.controller;
 
 import com.skt.KafkaESpipeline.service.ConsumerPollService;
-import com.skt.KafkaESpipeline.service.ElasticSearchService;
+import com.skt.KafkaESpipeline.service.OpenSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,7 +19,7 @@ public class DataController {
     private ConsumerPollService consumerPollService;
 
     @Autowired
-    private ElasticSearchService elasticSearchService;
+    private OpenSearchService openSearchService;
 
 
     @GetMapping("/consumer")
@@ -28,10 +28,10 @@ public class DataController {
     }
 
 
-    @GetMapping("/esData")
-    public String esData()
+    @GetMapping("/opensearch")
+    public String opensearch()
     {
-        return elasticSearchService.getEsData();
+        return openSearchService.getEsData();
     }
 
 }

@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.elasticsearch.client.RestHighLevelClient;
 import com.skt.KafkaESpipeline.dto.KafkaConsumerData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +27,6 @@ public class ConsumerPollService {
     private String gid;
     @Value("${spring.kafka.deserializer}")
     private String DESERIALIZER;
-
-    @Autowired
-    private RestHighLevelClient elasticsearchClient;
 
     private KafkaConsumer<String,String> consumer;
 
@@ -63,12 +59,12 @@ public class ConsumerPollService {
     public String consumepoll(){
         String result = null;
         while(true){
-           log.debug("poll record");
+            log.debug("poll record");
 
-           Set<String> topics = consumer.subscription();
-           log.debug("Subscribed topics: " + topics);
+            Set<String> topics = consumer.subscription();
+            log.debug("Subscribed topics: " + topics);
 
-           ConsumerRecords<String,String> records = consumer.poll(500);
+            ConsumerRecords<String,String> records = consumer.poll(500);
 
             if(!records.isEmpty()) {
                 log.debug("records is not empty.");
