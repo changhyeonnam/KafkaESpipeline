@@ -25,7 +25,7 @@ public class OpenSearchService {
     private RestHighLevelClient highLevelClient;
 
 
-    public String getEsData(){
+    public String getData(){
         String indexPrefix = "txt-";
         String dateIndex = indexPrefix + dateUtils.getDateNowString();
         SearchRequest searchRequest = new SearchRequest(dateIndex);

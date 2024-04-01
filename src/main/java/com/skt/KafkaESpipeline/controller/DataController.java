@@ -31,7 +31,7 @@ public class DataController {
     @GetMapping("/opensearch")
     public String opensearch()
     {
-        return openSearchService.getEsData();
+        return openSearchService.getData();
     }
 
 }
