@@ -32,8 +32,6 @@ public class ConsumerListenService {
 
     @Autowired
     private RestHighLevelClient highLevelClient;
-//    private RestClient lowLevelClient = highLevelClient.getLowLevelClient();
-
 
     public void sendKafkaToEs(KafkaConsumerData kafkaConsumerData){
         try {
