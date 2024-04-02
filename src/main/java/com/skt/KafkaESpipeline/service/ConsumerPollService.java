@@ -21,31 +21,43 @@ import java.util.Set;
 @Service
 public class ConsumerPollService {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String KAFKA_ADDRESS;
-    @Value("${spring.kafka.consumer.group-id}")
-    private String gid;
-    @Value("${spring.kafka.deserializer}")
-    private String DESERIALIZER;
 
+    private final String KAFKA_ADDRESS;
+    private final String groupId;
+    private final String DESERIALIZER;
     private KafkaConsumer<String,String> consumer;
+    private final Gson gson;
 
     @Autowired
-    private Gson gson;
+    public ConsumerPollService(@Value("${spring.kafka.bootstrap-servers}") String KAFKA_ADDRESS,
+                               @Value("${spring.kafka.consumer.group-id}")String groupId,
+                               @Value("${spring.kafka.deserializer}")String DESERIALIZER,
+                               Gson gson){
 
+        this.KAFKA_ADDRESS = KAFKA_ADDRESS;
+        this.groupId = groupId;
+        this.DESERIALIZER = DESERIALIZER;
+        this.gson = gson;
+    }
+
+
+    /**
+     *
+     */
     @PostConstruct
     private void init(){
         Properties configs = new Properties();
-
-        configs.put("bootstrap.servers",KAFKA_ADDRESS);
-        configs.put("group.id", gid);
-        configs.put("key.deserializer",DESERIALIZER);
-        configs.put("value.deserializer", DESERIALIZER);
-
+        configs.put("bootstrap.servers",this.KAFKA_ADDRESS);
+        configs.put("group.id", this.groupId);
+        configs.put("key.deserializer",this.DESERIALIZER);
+        configs.put("value.deserializer", this.DESERIALIZER);
         consumer = new KafkaConsumer<>(configs);
         consumer.subscribe(Arrays.asList("telegraflogs"));
     }
 
+    /**
+     *
+     */
     @PreDestroy
     private void destroy(){
         try {
@@ -55,7 +67,10 @@ public class ConsumerPollService {
         }
     }
 
-
+    /**
+     *
+     * @return
+     */
     public String consumepoll(){
         String result = null;
         while(true){

@@ -9,39 +9,53 @@ import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
+import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 public class OpenSearchService {
 
 
-    private final DateUtils dateUtils = new DateUtils();
+
+    private final RestHighLevelClient restHighLevelClient;
+    private final DateUtils dateUtils;
 
     @Autowired
-    private RestHighLevelClient highLevelClient;
+    public OpenSearchService(RestHighLevelClient restHighLevelClient, DateUtils dateUtils){
+        this.restHighLevelClient = restHighLevelClient;
+        this.dateUtils = dateUtils;
+    }
 
-
-    public String getData(){
-        String indexPrefix = "txt-";
-        String dateIndex = indexPrefix + dateUtils.getDateNowString();
+    public List<Map<String,Object>> getOpenSearchData(){
+        String dateIndex = dateUtils.getIndex();
         SearchRequest searchRequest = new SearchRequest(dateIndex);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.size(30);
+        searchRequest.source(searchSourceBuilder);
+
         SearchResponse searchResponse;
 
         try{
-            searchResponse = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 
             SearchHits hits = searchResponse.getHits();
 
-            String result = "";
+            List<Map<String,Object>> results = new ArrayList<>();
             for(SearchHit hit : hits.getHits()){
-                result += hit.getSourceAsString()+'\n';
+                Map<String,Object> map = new HashMap<>();
+                hit.getSourceAsMap().forEach((key,value)-> map.put(key,value));
+                results.add(map);
             }
 
-            return result;
+            return results;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
