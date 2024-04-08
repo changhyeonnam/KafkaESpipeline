@@ -43,18 +43,7 @@ public class KafkaConfig {
         return configs;
     }
 
-    @Bean
-    public KafkaProducer<String, String> producerConfigs(){
-        Properties configs = new Properties();
-        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configs.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,true); // 멱등성 프로듀서 옵션
 
-        KafkaProducer<String, String> producer  = new KafkaProducer<>(configs);
-
-        return producer;
-    }
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory(){
