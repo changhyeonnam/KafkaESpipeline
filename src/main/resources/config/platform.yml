@@ -1,0 +1,16 @@
+opensearch:
+  address: 54.180.148.20:9200
+#  port: 9200
+  protocol: http
+  stats: /_nodes/stats
+  index-prefix : txt
+
+spring:
+  kafka:
+    bootstrap-servers: 3.34.127.223:9094
+    consumer:
+      group-id: nam
+    deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      topic:
+        ad: ad

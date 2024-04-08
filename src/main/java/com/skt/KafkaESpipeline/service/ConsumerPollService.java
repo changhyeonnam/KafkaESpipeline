@@ -5,17 +5,19 @@ import com.google.gson.Gson;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import com.skt.KafkaESpipeline.dto.KafkaConsumerData;
+import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -73,6 +75,7 @@ public class ConsumerPollService {
      */
     public String consumepoll(){
         String result = null;
+
         while(true){
             log.debug("poll record");
 
@@ -95,6 +98,10 @@ public class ConsumerPollService {
                 }
             }
         }
+
+
+
+
     }
 
 

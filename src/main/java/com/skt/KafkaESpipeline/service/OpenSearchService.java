@@ -40,14 +40,10 @@ public class OpenSearchService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.size(30);
         searchRequest.source(searchSourceBuilder);
-
         SearchResponse searchResponse;
-
         try{
             searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-
             SearchHits hits = searchResponse.getHits();
-
             List<Map<String,Object>> results = new ArrayList<>();
             for(SearchHit hit : hits.getHits()){
                 Map<String,Object> map = new HashMap<>();

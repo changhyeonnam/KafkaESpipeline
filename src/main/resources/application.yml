@@ -1,0 +1,28 @@
+server:
+ port: 8081
+ tomcat:
+  basedir: ./
+ servlet:
+  encoding:
+   charset: UTF-8
+   enabled: true
+   force: true
+  session:
+   timeout: 60m
+spring:
+ config:
+  import:
+   - config/platform.yml
+
+logging:
+ level:
+  org:
+   springframework:
+    data:
+     elasticsearch:
+      client: ERROR
+    security: ERROR
+   elasticsearch:
+    client:
+     RestClient: ERROR
+   hibernate: ERROR
